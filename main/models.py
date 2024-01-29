@@ -2,21 +2,10 @@ from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.contenttypes import fields, models as contrib_models
-# Create your models here.
+from .utils import normalize_phone_number
 
 
 class AppUserManager(BaseUserManager):
-    @staticmethod
-    def normalize_phone_number(phone_number):
-        # Remove any non-digit characters from the phone number
-        digits_only = ''.join(filter(str.isdigit, phone_number))
-
-        if len(digits_only) != 12:
-            raise ValueError(
-                'Invalid phone number format. Valid phone number must contain country code (3 digits) and other 9 digits. 12 in total')
-
-        return digits_only
-
     def create_user(self, first_name, last_name, username, phone_number, email, password=None, **kwargs):
         if not first_name:
             raise ValueError('A first name is required!')
@@ -32,7 +21,7 @@ class AppUserManager(BaseUserManager):
             raise ValueError('An password is required!')
 
         email = self.normalize_email(email)
-        norm_phone_number = self.normalize_phone_number(phone_number)
+        norm_phone_number = normalize_phone_number(phone_number)
 
         user = self.model(email=email,
                           first_name=first_name,
