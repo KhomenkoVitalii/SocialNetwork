@@ -126,7 +126,7 @@ class Post(models.Model):
         upload_to='uploads/images/%Y/%m/%d/', blank=True, null=True)
     is_safe = models.BooleanField(default=True)
     likes = fields.GenericRelation('Like')
-    updated_at = models.DateTimeField(default=None)
+    updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateField(
         auto_now_add=True, null=False, editable=False)
 
