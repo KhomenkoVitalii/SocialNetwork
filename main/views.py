@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.db.models import Count
 from django.contrib.auth import get_user_model
 from .models import Post, Like
-from .serializers import PostSerializer, AnalyticsSerializer
+from .serializers import PostSerializer
 from .mixins import LikeModelMixin
 from datetime import datetime
 
