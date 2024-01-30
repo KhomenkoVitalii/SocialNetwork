@@ -8,6 +8,11 @@ class Bot:
     """
     Object of this bot demonstrate functionalities of the system according to defined rules. This bot
     read rules from a config file
+
+    to run this bot:
+    1. environment must be activated
+    2. server must be running
+    3. run code line 'python bot/automated_bot.py'
     """
 
     def __init__(self, config_file, base_url):
