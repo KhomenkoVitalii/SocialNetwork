@@ -11,8 +11,8 @@ User = get_user_model()
 
 @pytest.mark.django_db
 class TestPostApi:
-    def test_get_posts(self, api_client, authenticated_user, post):
-        response = authenticated_user.get(reverse('post-list'))
+    def test_get_posts(self, api_client, authorized_user, post):
+        response = authorized_user.get(reverse('post-list'))
 
         assert response.status_code == 200, f"Expected status code 200, but got {response.status_code}"
 
@@ -20,24 +20,26 @@ class TestPostApi:
 
         assert response.data and serialized_data, "Response data is empty or does not match serialized data"
 
-    def test_create_post(self, api_client, authenticated_user, post):
-        response = authenticated_user.post(reverse('post-list'), {
-            'title': post_test_data.get('title'), 'body': post_test_data.get('body')}, format='json')
+    def test_create_post(self, api_client, user, authorized_user, post):
+        response = authorized_user.post(reverse('post-list'), {
+            'title': post_test_data.get('title'),
+            'body': post_test_data.get('body'),
+            'user': user.id}, format='json')
 
         assert response.status_code == 201
 
         assert response.data['title'] == post.title
         assert response.data['body'] == post.body
-        assert response.data['user'] == authenticated_user.username
+        assert response.data['user'] == user.id
 
-    def test_retrieve_post(self, api_client, authenticated_user, post):
+    def test_retrieve_post(self, api_client, authorized_user, post):
         url = reverse('post-detail', args=[post.id])
 
-        response = authenticated_user.get(url)
+        response = authorized_user.get(url)
         assert response.status_code == status.HTTP_200_OK
         assert response.data['title'] == post.title
         assert response.data['body'] == post.body
-        assert response.data['user'] == post.user.username
+        assert response.data['user'] == post.user.id
 
     def test_retrieve_nonexistent_post(self, api_client, authorized_user):
         # Assuming post with ID 999 doesn't exist
@@ -51,7 +53,8 @@ class TestPostApi:
         updated_body = 'Updated Body'
 
         url = reverse('post-detail', args=[post.id])
-        updated_data = {'title': updated_title, 'body': updated_body}
+        updated_data = {'title': updated_title,
+                        'body': updated_body, 'user': post.user.id}
 
         response = authorized_user.put(url, updated_data, format='json')
         assert response.status_code == status.HTTP_200_OK

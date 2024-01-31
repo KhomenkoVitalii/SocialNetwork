@@ -5,6 +5,19 @@ from main.models import Post
 
 User = get_user_model()
 
+
+@fixture
+def get_user_test_data():
+    return {
+        'email': 'user@gmail.com',
+        'phone_number': '+380567341385',
+        'username': 'user',
+        'first_name': 'User',
+        'last_name': 'User',
+        'password': 'somedifficultpassword'
+    }
+
+
 user_test_data = {
     'email': 'user@gmail.com',
     'phone_number': '+380567341385',
@@ -16,7 +29,7 @@ user_test_data = {
 
 post_test_data = {
     'title': 'Test title',
-    'body': 'Test body',
+    'body': 'Test body'
 }
 
 
@@ -26,7 +39,7 @@ def api_client():
 
 
 @fixture
-def user(db):
+def user():
     return User.objects.create_user(**user_test_data)
 
 
@@ -38,4 +51,4 @@ def authorized_user(api_client, user):
 
 @fixture
 def post(api_client, user, authorized_user):
-    return Post.objects.create(user=authorized_user, **post_test_data)
+    return Post.objects.create(user=user, **post_test_data)
