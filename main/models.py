@@ -2,23 +2,13 @@ from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.contenttypes import fields, models as contrib_models
-from .utils import normalize_phone_number
+from .utils import normalize_phone_number, validate_data
 
 
 class AppUserManager(BaseUserManager):
     def create_user(self, first_name, last_name, username, phone_number, email, password=None, **kwargs):
-        if not first_name:
-            raise ValueError('A first name is required!')
-        if not last_name:
-            raise ValueError('A last name is required!')
-        if not email:
-            raise ValueError('An email is required!')
-        if not phone_number:
-            raise ValueError('An phone number is required!')
-        if not username:
-            raise ValueError('An username is required!')
-        if not password:
-            raise ValueError('An password is required!')
+        validate_data(first_name, last_name, username,
+                      phone_number, email, password)
 
         email = self.normalize_email(email)
         norm_phone_number = normalize_phone_number(phone_number)
@@ -33,18 +23,8 @@ class AppUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, first_name, last_name, username, phone_number, email, password=None, **kwargs):
-        if not first_name:
-            raise ValueError('A first name is required!')
-        if not last_name:
-            raise ValueError('A last name is required!')
-        if not email:
-            raise ValueError('An email is required!')
-        if not phone_number:
-            raise ValueError('An phone number is required!')
-        if not username:
-            raise ValueError('An username is required!')
-        if not password:
-            raise ValueError('An password is required!')
+        validate_data(first_name, last_name, username,
+                      phone_number, email, password)
 
         user = self.create_user(first_name, last_name, username,
                                 phone_number, email, password, **kwargs)
