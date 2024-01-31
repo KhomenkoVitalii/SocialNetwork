@@ -2,6 +2,10 @@ import json
 import random
 import requests
 from utils import generate_user_data, generate_user_post
+import logging
+
+logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
 
 
 class Bot:
@@ -25,25 +29,28 @@ class Bot:
 
     def simulate_activity(self):
         for user_id in range(self.config['number_of_users']):
-            print('\n\n\n')
             user_data = generate_user_data()
             post_data = generate_user_post()
             self.signup_user(user_data)
             self.create_posts(user_data, post_data)
             self.like_posts(user_data)
+            print('\n\n\n')
 
     def signup_user(self, user_data):
         url = f"{self.base_url}/api/v1/auth/users/"
         response = requests.post(url, json=user_data)
 
         if response.status_code == 201:
-            print(f"User {user_data['username']} signed up successfully.")
+            logger.info(
+                f"User {user_data['username']} signed up successfully.")
             self.user_unique_identifiers[user_data['username']] = response.json()[
                 'id']
-            print(f"User {user_data['username']} id stored successfully.")
+            logger.info(
+                f"User {user_data['username']} id stored successfully.")
             self.sign_in_user(user_data)
         else:
-            print(f"Failed to sign up user {user_data['username']}.")
+            logger.critical(f"Failed to sign up user {user_data['username']}.")
+            logger.info(f"Get {response.status_code} status code")
 
     def sign_in_user(self, user_data):
         url = f"{self.base_url}/api/v1/auth/jwt/create/"
@@ -52,10 +59,11 @@ class Bot:
 
         if response.status_code == 200:
             self.tokens[user_data['username']] = response.json()['access']
-            print(f"Stored {user_data.get('username')}'s token successfully!")
+            logger.info(
+                f"Stored {user_data.get('username')}'s token successfully!")
         else:
-            print(f"Failed to sign in {user_data['username']}!")
-            print(f"Got {response.status_code} status code")
+            logger.warning(f"Failed to sign in {user_data['username']}!")
+            logger.warning(f"Got {response.status_code} status code")
 
     def create_posts(self, user_data, post_data):
         token = self.tokens.get(user_data['username'])
@@ -73,15 +81,13 @@ class Bot:
                 if response.status_code == 201:
                     self.post_unique_identifiers[user_data['username']] = response.json()[
                         'id']
-                    print(
+                    logger.info(
                         f"User {user_data['username']} created post successfully.")
                 else:
-                    print(
+                    logger.warning(
                         f"Failed to create post by user {user_data['username']}.")
-                    print(response.json())
-                    print(response.request.headers)
         else:
-            print(
+            logger.warning(
                 f"No token found for user {user_data['username']}. Unable to create posts.")
 
     def like_posts(self, user_data):
@@ -97,16 +103,16 @@ class Bot:
                 response = requests.post(url=url, headers=headers)
 
                 if response.status_code == 201:
-                    print(
+                    logger.info(
                         f"User {user_data['username']} liked post with id {post_id}")
                 elif response.status_code == 400:
-                    print(
+                    logger.warning(
                         f"User {user_data['username']} already liked post with id {post_id}")
                 else:
-                    print(
+                    logger.warning(
                         f"User {user_data['username']} can't like post with id {post_id}")
         else:
-            print(
+            logger.warning(
                 f"No token found for user {user_data['username']}. Unable to create posts.")
 
 
